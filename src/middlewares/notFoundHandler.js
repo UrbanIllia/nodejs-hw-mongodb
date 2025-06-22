@@ -1,5 +1,6 @@
+import createHttpError from 'http-errors';
+
 export const notFoundHandler = (req, res, next) => {
-  res.status(404).json({
-    message: 'Route not found',
-  });
+  const error = createHttpError(404, 'Route not found');
+  next(error);
 };

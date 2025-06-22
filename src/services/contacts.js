@@ -1,9 +1,40 @@
 import { ContactsCollection } from '../db/models/contact.js';
 import { Types } from 'mongoose';
+import { SORT_ORDER } from '../constants/index.js';
+import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 
-export const getAllContacts = async () => {
-  const contacts = await ContactsCollection.find();
-  return contacts;
+export const getAllContacts = async ({
+  page = 1,
+  perPage = 10,
+  sortOrder = SORT_ORDER.ASC,
+  sortBy = '_id',
+  type,
+  isFavourite,
+}) => {
+  const limit = perPage;
+  const skip = (page - 1) * perPage;
+
+  try {
+    const filter = {};
+    if (type) filter.contactType = type;
+    if (isFavourite !== undefined) filter.isFavourite = isFavourite;
+
+    const totalItems = await ContactsCollection.countDocuments(filter);
+    const contacts = await ContactsCollection.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortBy]: sortOrder })
+      .exec();
+
+    const paginationData = calculatePaginationData(totalItems, limit, page);
+
+    return {
+      data: contacts,
+      ...paginationData,
+    };
+  } catch (error) {
+    throw new Error(`Короче шось не виходить зробити фетч: ${error.message}`);
+  }
 };
 
 // ..........................................................
@@ -43,7 +74,8 @@ export const updateContact = async (contactId, payload, options = {}) => {
       { _id: contactId },
       payload,
       {
-        new: true,
+        // new: true,
+        // runValidators: true,
         includeResultMetadata: true,
         ...options,
       },
@@ -60,6 +92,7 @@ export const updateContact = async (contactId, payload, options = {}) => {
     return null;
   }
 };
+// .........................................................
 
 export const deleteContact = async (contactId) => {
   console.log('Deleting contactId:', contactId);
