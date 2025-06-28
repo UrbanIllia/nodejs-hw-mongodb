@@ -1,11 +1,14 @@
 import { model, Schema } from 'mongoose';
-
 import { saveErrorHandler, setUpdateSettings } from './hooks.js';
-
 import { CONTACT_TYPE } from '../../constants/contacts-const.js';
 
 const contactSchema = new Schema(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+      required: true,
+    },
     name: {
       type: String,
       required: true,
