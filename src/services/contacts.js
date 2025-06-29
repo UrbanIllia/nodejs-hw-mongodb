@@ -10,12 +10,13 @@ export const getAllContacts = async ({
   sortBy = '_id',
   type,
   isFavourite,
+  req,
 }) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
 
   try {
-    const filter = {};
+    const filter = { userId: req.user._id };
     if (type) filter.contactType = type;
     if (isFavourite !== undefined) filter.isFavourite = isFavourite;
 
@@ -39,14 +40,17 @@ export const getAllContacts = async ({
 
 // ..........................................................
 
-export const getContactById = async (contactId) => {
+export const getContactById = async (contactId, req) => {
   console.log('Checking contactId:', contactId);
   if (!contactId || !Types.ObjectId.isValid(contactId)) {
     console.log('Invalid ObjectId');
     return null;
   }
   try {
-    const contact = await ContactsCollection.findById(contactId);
+    const contact = await ContactsCollection.findOne({
+      _id: contactId,
+      userId: req.user._id,
+    });
     return contact;
   } catch (error) {
     console.log('MongoDB error:', error.message);
@@ -56,14 +60,17 @@ export const getContactById = async (contactId) => {
 
 // ..........................................................
 
-export const createContact = async (payload) => {
-  const contact = await ContactsCollection.create(payload);
+export const createContact = async (payload, req) => {
+  const contact = await ContactsCollection.create({
+    ...payload,
+    userId: req.user._id,
+  });
   return contact;
 };
 
 // ..........................................................
 
-export const updateContact = async (contactId, payload, options = {}) => {
+export const updateContact = async (contactId, payload, options = {}, req) => {
   console.log('Updating contactId:', contactId);
   if (!contactId || !Types.ObjectId.isValid(contactId)) {
     console.log('Invalid ObjectId for update');
@@ -71,11 +78,9 @@ export const updateContact = async (contactId, payload, options = {}) => {
   }
   try {
     const rawResult = await ContactsCollection.findOneAndUpdate(
-      { _id: contactId },
+      { _id: contactId, userId: req.user._id },
       payload,
       {
-        // new: true,
-        // runValidators: true,
         includeResultMetadata: true,
         ...options,
       },
@@ -92,9 +97,10 @@ export const updateContact = async (contactId, payload, options = {}) => {
     return null;
   }
 };
+
 // .........................................................
 
-export const deleteContact = async (contactId) => {
+export const deleteContact = async (contactId, req) => {
   console.log('Deleting contactId:', contactId);
   if (!contactId || !Types.ObjectId.isValid(contactId)) {
     console.log('Invalid ObjectId for delete');
@@ -103,6 +109,7 @@ export const deleteContact = async (contactId) => {
   try {
     const contact = await ContactsCollection.findOneAndDelete({
       _id: contactId,
+      userId: req.user._id,
     });
     return contact;
   } catch (error) {
