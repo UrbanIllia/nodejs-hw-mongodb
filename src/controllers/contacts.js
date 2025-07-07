@@ -49,7 +49,12 @@ export const getContactByIdController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await createContact(req.body, req);
+  let photoUrl = null;
+  if (req.file) {
+    photoUrl = await saveFileToCloudinary(req.file);
+  }
+
+  const contact = await createContact({ ...req.body, photo: photoUrl }, req);
 
   res.status(201).json({
     status: 201,

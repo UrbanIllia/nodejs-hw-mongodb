@@ -8,6 +8,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now();
+    console.log('File received:', file.originalname);
     cb(null, `${uniqueSuffix}_${file.originalname}`);
   },
 });
