@@ -39,7 +39,7 @@ export const authenticate = async (req, res, next) => {
     next(createHttpError(401));
     return;
   }
-
+  console.log('Authenticated user ID:', user._id);
   req.user = user;
 
   next();

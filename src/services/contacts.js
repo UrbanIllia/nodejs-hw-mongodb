@@ -71,7 +71,7 @@ export const createContact = async (payload, req) => {
 // ..........................................................
 
 export const updateContact = async (contactId, payload, options = {}, req) => {
-  console.log('Updating contactId:', contactId);
+  console.log('Updating contactId:', contactId, 'User ID:', req.user._id);
   if (!contactId || !Types.ObjectId.isValid(contactId)) {
     console.log('Invalid ObjectId for update');
     return null;
@@ -85,9 +85,11 @@ export const updateContact = async (contactId, payload, options = {}, req) => {
         ...options,
       },
     );
-
-    if (!rawResult || !rawResult.value) return null;
-
+    console.log('Raw result:', rawResult);
+    if (!rawResult || !rawResult.value) {
+      console.log('Contact not found or not updated');
+      return null;
+    }
     return {
       contact: rawResult.value,
       isNew: Boolean(rawResult?.lastErrorObject?.upserted),

@@ -333,12 +333,57 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/contact"
+                "type": "object",
+                "required": [
+                  "name",
+                  "phoneNumber",
+                  "contactType"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Updated contact name",
+                    "minLength": 3,
+                    "maxLength": 20,
+                    "example": "Maria Ivanova"
+                  },
+                  "phoneNumber": {
+                    "type": "string",
+                    "description": "Updated phone number",
+                    "example": 380671234567
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Updated email",
+                    "example": "maria.ivanova@email.com"
+                  },
+                  "isFavourite": {
+                    "type": "boolean",
+                    "description": "Updated favorite status",
+                    "example": false
+                  },
+                  "contactType": {
+                    "type": "string",
+                    "enum": [
+                      "work",
+                      "home",
+                      "personal"
+                    ],
+                    "description": "Updated contact type"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file to upload (optional)"
+                  }
+                }
               }
             }
-          }
+          },
+          "required": false
         },
         "responses": {
           "200": {
